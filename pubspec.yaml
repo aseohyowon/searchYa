@@ -11,6 +11,10 @@ dependencies:
     sdk: flutter
   # GPS 위치 및 권한 처리 (iOS/Android 공통 API 제공)
   geolocator: ^11.0.0
+  # Kakao Local REST API 호출
+  http: ^1.2.0
+  # 전화 앱(tel:) 및 지도 앱 실행
+  url_launcher: ^6.2.0
 
 dev_dependencies:
   flutter_test:
