@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 
 import '../core/constants/app_constants.dart';
+import '../models/place.dart';
+import '../repositories/place_repository.dart';
 import '../services/location_service.dart';
+import '../widgets/place_list_item.dart';
 
-/// STEP 2: shows permission/location state. Store list comes in STEP 3.
+/// Requests location, then lists nearby stores sorted by distance.
 class HomeScreen extends StatefulWidget {
   final LocationService locationService;
-  const HomeScreen({super.key, required this.locationService});
+  final PlaceRepository repository;
+  const HomeScreen(
+      {super.key, required this.locationService, required this.repository});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -15,6 +20,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   LocationResult? _result;
   bool _loading = true;
+  List<Place> _places = [];
+  String? _error;
 
   @override
   void initState() {
@@ -25,9 +32,20 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _load() async {
     setState(() => _loading = true);
     final r = await widget.locationService.getCurrentLocation();
+    var places = <Place>[];
+    String? error;
+    if (r.status == LocationStatus.ok) {
+      try {
+        places = await widget.repository.nearby(r.location!);
+      } catch (_) {
+        error = '매장 정보를 불러오지 못했습니다. 네트워크 상태를 확인해 주세요.';
+      }
+    }
     if (!mounted) return;
     setState(() {
       _result = r;
+      _places = places;
+      _error = error;
       _loading = false;
     });
   }
@@ -50,8 +68,17 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_loading || r == null) {
       body = const Center(child: CircularProgressIndicator());
     } else if (r.status == LocationStatus.ok) {
-      body = Center(
-          child: Text('현재 위치: ${r.location!.latitude}, ${r.location!.longitude}'));
+      if (_error != null) {
+        body = Center(child: Text(_error!));
+      } else if (_places.isEmpty) {
+        body = const Center(child: Text(AppConstants.noResults));
+      } else {
+        body = ListView.separated(
+          itemCount: _places.length,
+          separatorBuilder: (_, __) => const Divider(height: 1),
+          itemBuilder: (_, i) => PlaceListItem(place: _places[i]),
+        );
+      }
     } else {
       body = Center(
         child: Padding(

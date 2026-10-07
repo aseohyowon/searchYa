@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:search_ya/models/location_data.dart';
+import 'package:search_ya/repositories/place_repository.dart';
+import 'package:search_ya/services/mock_place_search_service.dart';
 import 'package:search_ya/screens/home_screen.dart';
 import 'package:search_ya/services/location_service.dart';
 
@@ -14,14 +16,19 @@ class FakeLocation implements LocationService {
 }
 
 Future<void> pump(WidgetTester t, LocationResult r) async {
-  await t.pumpWidget(MaterialApp(home: HomeScreen(locationService: FakeLocation(r))));
+  await t.pumpWidget(MaterialApp(home: HomeScreen(
+      locationService: FakeLocation(r),
+      repository: PlaceRepository(MockPlaceSearchService()))));
   await t.pumpAndSettle();
 }
 
 void main() {
   testWidgets('granted shows location', (t) async {
-    await pump(t, const LocationResult(LocationStatus.ok, LocationData(latitude: 1, longitude: 2)));
-    expect(find.textContaining('현재 위치: 1.0, 2.0'), findsOneWidget);
+    await pump(t, const LocationResult(LocationStatus.ok, LocationData(latitude: 37.5665, longitude: 126.9780)));
+    expect(find.text('A철물점'), findsOneWidget);
+    expect(find.textContaining('m'), findsWidgets);
+    // nearest first
+    expect(t.getTopLeft(find.text('A철물점')).dy < t.getTopLeft(find.text('C철물점')).dy, isTrue);
   });
   testWidgets('denied shows message', (t) async {
     await pump(t, const LocationResult(LocationStatus.denied));
