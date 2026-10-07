@@ -7,6 +7,7 @@ import '../repositories/place_repository.dart';
 import '../services/location_service.dart';
 import '../services/map_service.dart';
 import '../services/phone_service.dart';
+import '../services/place_search_exception.dart';
 import '../widgets/place_list_item.dart';
 import '../widgets/search_bar.dart';
 import 'place_detail_screen.dart';
@@ -74,8 +75,8 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       places = await widget.repository.search(keyword, origin);
     } catch (e) {
-      error = e is Exception && e.toString().isNotEmpty
-          ? e.toString()
+      error = e is PlaceSearchException
+          ? e.message
           : '매장 정보를 불러오지 못했습니다. 네트워크 상태를 확인해 주세요.';
     }
     if (!mounted || id != _requestId) return;
