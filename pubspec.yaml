@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # GPS 위치 및 권한 처리 (iOS/Android 공통 API 제공)
+  geolocator: ^11.0.0
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'screens/home_screen.dart';
+import 'services/location_service.dart';
+
 void main() => runApp(const SearchYaApp());
 
 class SearchYaApp extends StatelessWidget {
@@ -9,6 +12,6 @@ class SearchYaApp extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp(
         title: 'SearchYa',
         theme: ThemeData(colorSchemeSeed: Colors.blue, useMaterial3: true),
-        home: const Scaffold(body: Center(child: Text('SearchYa'))),
+        home: HomeScreen(locationService: GeolocatorLocationService()),
       );
 }
